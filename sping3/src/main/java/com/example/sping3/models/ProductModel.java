@@ -24,9 +24,17 @@ public class ProductModel extends RepresentationModel<ProductModel> implements S
     private Long id;
     @Setter
     @Getter
+    @Column(length = 50,nullable = false)
     private String name;
     @Setter
     @Getter
+    @Column(nullable = false)
     private BigDecimal value;
+
+    @Setter
+    @Getter
+    private String description;
+
+
 
 }
