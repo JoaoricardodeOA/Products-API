@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 public class WarehouseController {
     @Autowired
@@ -30,6 +33,48 @@ public class WarehouseController {
         List<ProductModel> productsModelList = new ArrayList<>();
         warehouseModel.setProduct(productsModelList);
         return ResponseEntity.status(HttpStatus.CREATED).body(warehouseRepository.save(warehouseModel));
+    }
+    @GetMapping("/warehouses")
+    public ResponseEntity<List<WarehouseModel>> getWarehouses(){
+        List<WarehouseModel> warehouseModelList= warehouseRepository.findAll();
+        if(!warehouseModelList.isEmpty()){
+            for (WarehouseModel warehouseModel:
+                    warehouseModelList) {
+                Long id = warehouseModel.getId();
+                warehouseModel.add(linkTo(methodOn(WarehouseController.class).getWarehouseById(id)).withSelfRel());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(warehouseModelList);
+    }
+    @GetMapping("/warehouses/{id}")
+    public ResponseEntity<Object> getWarehouseById(@PathVariable(value = "id") Long id){
+        Optional<WarehouseModel> warehouseModel = warehouseRepository.findById(id);
+        if(warehouseModel.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
+        }
+        warehouseModel.get().add(linkTo(methodOn(WarehouseController.class).getWarehouses()).withRel("Lista de Armazéns"));
+        return ResponseEntity.status(HttpStatus.OK).body(warehouseModel.get());
+    }
+    @PutMapping("/warehouses/{id}")
+    public ResponseEntity<Object> updateWarehouse(@PathVariable(value = "id") Long id,
+                                                  @RequestBody @Valid WarehouseRecordDto warehouseRecordDto){
+        Optional<WarehouseModel> warehouse = warehouseRepository.findById(id);
+        if(warehouse.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
+        }
+        var warehouseModel = warehouse.get();
+        BeanUtils.copyProperties(warehouseRecordDto,warehouseModel);
+        warehouseModel.setId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(warehouseRepository.save(warehouseModel));
+    }
+    @DeleteMapping("/warehouses/{id}")
+    public ResponseEntity<Object> deleteWarehouseById(@PathVariable(value = "id") Long id){
+        Optional<WarehouseModel> warehouseModelOptional = warehouseRepository.findById(id);
+        if(warehouseModelOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
+        }
+        warehouseRepository.delete(warehouseModelOptional.get());
+        return ResponseEntity.status(HttpStatus.OK).body("Armazém deletado");
     }
     @PutMapping("/warehouses/{id}/products")
     public ResponseEntity<Object> saveProductWarehouse(@PathVariable(value = "id") Long id , @RequestBody @Valid ProductRecordDto productRecordDto){
