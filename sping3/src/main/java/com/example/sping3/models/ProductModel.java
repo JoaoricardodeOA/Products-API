@@ -1,10 +1,7 @@
 package com.example.sping3.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
@@ -14,25 +11,21 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Data
 @Table(name = "TB_PRODUCTS")
 public class ProductModel extends RepresentationModel<ProductModel> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "ID", nullable = false)
-    @Getter
-    @Setter
     private Long id;
-    @Setter
-    @Getter
+
     @Column(length = 50,nullable = false)
     private String name;
-    @Setter
-    @Getter
+
     @Column(nullable = false)
     private BigDecimal value;
 
-    @Setter
-    @Getter
+
     private String description;
 
 
