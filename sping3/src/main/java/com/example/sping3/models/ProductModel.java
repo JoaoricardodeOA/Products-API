@@ -19,13 +19,13 @@ public class ProductModel extends RepresentationModel<ProductModel> implements S
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Column(length = 50,nullable = false)
+    @Column(length = 50,nullable = false,columnDefinition = "varchar(50)")
     private String name;
 
     @Column(nullable = false)
     private BigDecimal value;
 
-
+    @Column(columnDefinition = "varchar(255)")
     private String description;
 
 

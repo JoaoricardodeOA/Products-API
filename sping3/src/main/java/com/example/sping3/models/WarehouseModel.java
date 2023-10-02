@@ -22,6 +22,6 @@ public class WarehouseModel extends RepresentationModel<ProductModel> implements
     @OneToMany
     private List<ProductModel> product;
 
-    @Column(nullable = false,length = 100)
+    @Column(nullable = false, columnDefinition = "varchar(100)")
     private String WarehouseName;
 }
