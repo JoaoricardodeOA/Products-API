@@ -10,6 +10,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +26,17 @@ public class ProductController {
     ProductRepository productRepository;
 
     @PostMapping("/products")
-    public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto){
+    public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto,
+                                                    Errors errors){
+        if(productRecordDto.name()==null||productRecordDto.name().isEmpty()){
+            return new ResponseEntity("Não é possível um produto sem nome", HttpStatus.BAD_REQUEST);
+        }
+        if(productRecordDto.name()==null||productRecordDto.value().equals(0)){
+            return new ResponseEntity("Não é possível um produto sem valor", HttpStatus.BAD_REQUEST);
+        }
+        if (errors.hasErrors()) {
+            return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);
+        }
         var productModel = new ProductModel();
         BeanUtils.copyProperties(productRecordDto, productModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
@@ -56,7 +67,17 @@ public class ProductController {
 
     @PutMapping("/products/{id}")
     public ResponseEntity<Object> setProductById(@PathVariable(value = "id") Long id,
-                                                 @RequestBody @Valid ProductRecordDto productRecordDto){
+                                                 @RequestBody @Valid ProductRecordDto productRecordDto,
+                                                 Errors errors){
+        if(productRecordDto.name()==null||productRecordDto.name().isEmpty()){
+            return new ResponseEntity("Não é possível um produto sem nome", HttpStatus.BAD_REQUEST);
+        }
+        if(productRecordDto.value()==null||productRecordDto.value().equals(0)){
+            return new ResponseEntity("Não é possível um produto sem valor", HttpStatus.BAD_REQUEST);
+        }
+        if (errors.hasErrors()) {
+            return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);
+        }
         Optional<ProductModel> product = productRepository.findById(id);
         if(product.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encontrado");
@@ -77,8 +98,5 @@ public class ProductController {
         productRepository.delete(product.get());
         return ResponseEntity.status(HttpStatus.OK).body("Produto deletado");
     }
-
-
-
 
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -27,7 +28,14 @@ public class WarehouseController {
     @Autowired
     ProductRepository productRepository;
     @PostMapping("/warehouses")
-    public ResponseEntity<WarehouseModel> saveWarehouse(@RequestBody @Valid WarehouseRecordDto warehouseRecordDto){
+    public ResponseEntity<WarehouseModel> saveWarehouse(@RequestBody @Valid WarehouseRecordDto warehouseRecordDto, Errors errors){
+
+        if(warehouseRecordDto.WarehouseName() == null || warehouseRecordDto.WarehouseName().isEmpty()){
+            return new ResponseEntity("Nome vazio",HttpStatus.BAD_REQUEST);
+        }
+        if (errors.hasErrors()) {
+            return new ResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        }
         var warehouseModel = new WarehouseModel();
         BeanUtils.copyProperties(warehouseRecordDto, warehouseModel);
         List<ProductModel> productsModelList = new ArrayList<>();
@@ -48,6 +56,7 @@ public class WarehouseController {
     }
     @GetMapping("/warehouses/{id}")
     public ResponseEntity<Object> getWarehouseById(@PathVariable(value = "id") Long id){
+
         Optional<WarehouseModel> warehouseModel = warehouseRepository.findById(id);
         if(warehouseModel.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
@@ -57,7 +66,14 @@ public class WarehouseController {
     }
     @PutMapping("/warehouses/{id}")
     public ResponseEntity<Object> updateWarehouse(@PathVariable(value = "id") Long id,
-                                                  @RequestBody @Valid WarehouseRecordDto warehouseRecordDto){
+                                                  @RequestBody @Valid WarehouseRecordDto warehouseRecordDto,
+                                                  Errors errors){
+        if(warehouseRecordDto.WarehouseName() == null||warehouseRecordDto.WarehouseName().isEmpty()){
+            return new ResponseEntity("Nome vazio",HttpStatus.BAD_REQUEST);
+        }
+        if (errors.hasErrors()) {
+            return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);
+        }
         Optional<WarehouseModel> warehouse = warehouseRepository.findById(id);
         if(warehouse.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
@@ -68,7 +84,10 @@ public class WarehouseController {
         return ResponseEntity.status(HttpStatus.OK).body(warehouseRepository.save(warehouseModel));
     }
     @DeleteMapping("/warehouses/{id}")
-    public ResponseEntity<Object> deleteWarehouseById(@PathVariable(value = "id") Long id){
+    public ResponseEntity<Object> deleteWarehouseById(@PathVariable(value = "id") Long id, Errors errors){
+        if (errors.hasErrors()) {
+            return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);
+        }
         Optional<WarehouseModel> warehouseModelOptional = warehouseRepository.findById(id);
         if(warehouseModelOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
@@ -77,7 +96,18 @@ public class WarehouseController {
         return ResponseEntity.status(HttpStatus.OK).body("Armazém deletado");
     }
     @PutMapping("/warehouses/{id}/products")
-    public ResponseEntity<Object> saveProductWarehouse(@PathVariable(value = "id") Long id , @RequestBody @Valid ProductRecordDto productRecordDto){
+    public ResponseEntity<Object> saveProductWarehouse(@PathVariable(value = "id") Long id ,
+                                                       @RequestBody @Valid ProductRecordDto productRecordDto,
+                                                       Errors errors){
+        if(productRecordDto.name() == null||productRecordDto.name().isEmpty()){
+            return new ResponseEntity("Não é possível um produto sem nome", HttpStatus.BAD_REQUEST);
+        }
+        if(productRecordDto.value() == null||productRecordDto.value().equals(0)){
+            return new ResponseEntity("Não é possível um produto sem valor", HttpStatus.BAD_REQUEST);
+        }
+        if (errors.hasErrors()) {
+            return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);
+        }
         var productModel = new ProductModel();
         BeanUtils.copyProperties(productRecordDto, productModel);
         Optional<WarehouseModel> warehouseModelOptional = warehouseRepository.findById(id);
