@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,9 +35,13 @@ public class ProductController {
         if(productRecordDto.name()==null||productRecordDto.value().equals(0)){
             return new ResponseEntity("Não é possível um produto sem valor", HttpStatus.BAD_REQUEST);
         }
+        if(productRecordDto.value().compareTo(BigDecimal.valueOf(0))<0){
+            return new ResponseEntity("Valor de produto negativo", HttpStatus.BAD_REQUEST);
+        }
         if (errors.hasErrors()) {
             return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);
         }
+
         var productModel = new ProductModel();
         BeanUtils.copyProperties(productRecordDto, productModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
@@ -74,6 +79,9 @@ public class ProductController {
         }
         if(productRecordDto.value()==null||productRecordDto.value().equals(0)){
             return new ResponseEntity("Não é possível um produto sem valor", HttpStatus.BAD_REQUEST);
+        }
+        if(productRecordDto.value().compareTo(BigDecimal.valueOf(0))<0){
+            return new ResponseEntity("Valor de produto negativo", HttpStatus.BAD_REQUEST);
         }
         if (errors.hasErrors()) {
             return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);

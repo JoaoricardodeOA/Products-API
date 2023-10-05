@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,10 +85,7 @@ public class WarehouseController {
         return ResponseEntity.status(HttpStatus.OK).body(warehouseRepository.save(warehouseModel));
     }
     @DeleteMapping("/warehouses/{id}")
-    public ResponseEntity<Object> deleteWarehouseById(@PathVariable(value = "id") Long id, Errors errors){
-        if (errors.hasErrors()) {
-            return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Object> deleteWarehouseById(@PathVariable(value = "id") Long id){
         Optional<WarehouseModel> warehouseModelOptional = warehouseRepository.findById(id);
         if(warehouseModelOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
@@ -104,6 +102,9 @@ public class WarehouseController {
         }
         if(productRecordDto.value() == null||productRecordDto.value().equals(0)){
             return new ResponseEntity("Não é possível um produto sem valor", HttpStatus.BAD_REQUEST);
+        }
+        if(productRecordDto.value().compareTo(BigDecimal.valueOf(0))<0){
+            return new ResponseEntity("Valor de produto negativo", HttpStatus.BAD_REQUEST);
         }
         if (errors.hasErrors()) {
             return new ResponseEntity("erro no servidor", HttpStatus.BAD_REQUEST);

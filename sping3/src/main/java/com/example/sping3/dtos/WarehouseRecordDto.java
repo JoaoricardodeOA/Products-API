@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-public record WarehouseRecordDto(@NotBlank @NotNull String WarehouseName) {
+public record WarehouseRecordDto(@NotBlank(message = "nome em branco") @NotNull(message = "nome vazio") String WarehouseName) {
 }
