@@ -32,7 +32,7 @@ public class ProductController {
         if(productRecordDto.name()==null||productRecordDto.name().isEmpty()){
             return new ResponseEntity("Não é possível um produto sem nome", HttpStatus.BAD_REQUEST);
         }
-        if(productRecordDto.name()==null||productRecordDto.value().equals(0)){
+        if(productRecordDto.value()==null||productRecordDto.value().equals(0)){
             return new ResponseEntity("Não é possível um produto sem valor", HttpStatus.BAD_REQUEST);
         }
         if(productRecordDto.value().compareTo(BigDecimal.valueOf(0))<0){

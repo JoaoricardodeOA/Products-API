@@ -112,12 +112,12 @@ public class WarehouseController {
         var productModel = new ProductModel();
         BeanUtils.copyProperties(productRecordDto, productModel);
         Optional<WarehouseModel> warehouseModelOptional = warehouseRepository.findById(id);
-        if(warehouseModelOptional.isEmpty()){
+        if(warehouseModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Armazém não encontrado");
         }
+        productRepository.save(productModel);
         var warehouse = warehouseModelOptional.get();
         var list = warehouse.getProduct();
-        productRepository.save(productModel);
         list.add(productModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(warehouseRepository.save(warehouse));
     }
